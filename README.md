@@ -64,7 +64,20 @@ For this example a JWT needs to be generated to be passed in the authorization h
 **Note:** The secret is hardcoded in this example to `yoursecret` and the algorithm is `HS256` - you will need to set these for the signature to be valid.
 
 ![JWT.io](/docs/jwt-token.png)
+## Sample Admin Token
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmMxMjMiLCJuYW1lIjoiSm9obiBTbWl0aCIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTUxNjIzOTAyMn0.DHYeM_M2hhmJYqBaemfls45WvmIwAnM3aR_2Gvf1xOs
 
+Payload:
+```json
+{
+  "sub": "abc123",
+  "name": "John Smith",
+  "roles": [
+    "admin"
+  ],
+  "iat": 1516239022
+}
+```
 ## Request Flow
 
 1. HTTP request comes in and the `express-jwt` library validates the token and adds the payload to `req.user`.

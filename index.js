@@ -1,13 +1,15 @@
 import express from "express";
 import jwt from "express-jwt";
-
-import { GRPC as Cerbos } from "@cerbos/grpc";
 import db from "./db.js";
+import { HTTP } from "@cerbos/http";
 
-const cerbos = new Cerbos("localhost:3593", { tls: false });
+const cerbos = new HTTP("https://3592-lutfihaslab-expressjwtc-6ckl7v35114.ws-us110.gitpod.io");
+
+// import { GRPC as Cerbos } from "@cerbos/grpc";
+// const cerbos = new Cerbos("localhost:3593", { tls: false }); //need gRpc connection
 
 const app = express();
-const checkJwt = jwt({ secret: "yoursecret", algorithms: ["HS256"] });
+const checkJwt = jwt.expressjwt({ secret: "yoursecret", algorithms: ["HS256"] });
 
 // Extract data from the JWT (check DB etc) and create the principal object to be sent to Cerbos
 const jwtToPrincipal = ({ sub, iat, roles = [], ...rest }) => {
@@ -28,7 +30,7 @@ app.get("/contacts/:id", checkJwt, async (req, res) => {
 
   // check user is authorized
   const decision = await cerbos.checkResource({
-    principal: jwtToPrincipal(req.user),
+    principal: jwtToPrincipal(req.auth),
     resource: {
       kind: "contact",
       id: contact.id,
@@ -49,7 +51,7 @@ app.get("/contacts/:id", checkJwt, async (req, res) => {
 app.post("/contacts/new", checkJwt, async (req, res) => {
   // check user is authorized
   const decision = await cerbos.checkResource({
-    principal: jwtToPrincipal(req.user),
+    principal: jwtToPrincipal(req.auth),
     resource: {
       kind: "contact",
       id: "new",
@@ -73,7 +75,7 @@ app.patch("/contacts/:id", checkJwt, async (req, res) => {
   }
 
   const decision = await cerbos.checkResource({
-    principal: jwtToPrincipal(req.user),
+    principal: jwtToPrincipal(req.auth),
     resource: {
       kind: "contact",
       id: contact.id,
@@ -99,7 +101,7 @@ app.delete("/contacts/:id", checkJwt, async (req, res) => {
   }
 
   const decision = await cerbos.checkResource({
-    principal: jwtToPrincipal(req.user),
+    principal: jwtToPrincipal(req.auth),
     resource: {
       kind: "contact",
       id: contact.id,
@@ -124,7 +126,7 @@ app.get("/contacts", checkJwt, async (req, res) => {
 
   // check user is authorized
   const decision = await cerbos.checkResources({
-    principal: jwtToPrincipal(req.user),
+    principal: jwtToPrincipal(req.auth),
     resources: contacts.map((contact) => ({
       resource: {
         kind: "contact",
